@@ -12,3 +12,4 @@ page for the latest builds.
 
 [![Travis status](https://api.travis-ci.org/opmineserver/godot-builds.svg?branch=master)](https://api.travis-ci.org/opmineserver/godot-builds.svg?branch=master)
 [![AppVeyor status](https://ci.appveyor.com/api/projects/status/gld0ahapgjt0vrbg?svg=true)](https://ci.appveyor.com/project/GodotBuilder/godot-builds)
+
