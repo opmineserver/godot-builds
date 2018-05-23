@@ -203,7 +203,7 @@ before_deploy:
 deploy:
   provider: releases
   api_key:
-    secure: tCFCHet6fgtf1+sgQEft4XTIfNH2JrqRx+YaatEfEEVNkHbY3SnRdtvcZeTeHc1LNpf6S0eU45RkBHeyN1Gna80Yiz8uep7rFuUTp5XtZsRfNecw/ebhPlyOEf3AhCVBJ3e3RxT2V1i/+8HyaWBisbXMZ1R+w07M3BxQrTpJflb7iSIXYTF//BxBtC1Atp7egDoU97OJfLSPEhPbjGhMoUuLTe7wmZqd7zK3DNTatL/pXefLN67N15dOra0LNgBHo1o6P4wcVBT2V+o9/TK5RAyUi5TqoudETgq2pBdAE558OuBbHh1dwDrs9b9ZbUC0mLautadiSbCkU0nLmYapaCKGr4+DpnZCxZYgzcYb5UPb6u6Rs3pY11JFtPYIXR2C1UJh4rpBIQa+F/eBKnw+QztnjfYWxJYq2T73CuFLgku89x99cVq7EiP0g/lZp64HxyENOcyL0FlWwjmq2vnr8BKNhDEVAXIUB1JsH8VshvndlgLhaRyRe+rkXnikLX8Nm6Z9V4pCjnRuCgiwZtYjxMTBhk30ZtXUg4uzCVmbvbUql8PPNrWDeq9yoUVe55kqU6DsxM1CEIou7Qcua2eeXcUkOGCgpXH4W0NXWBFo7Ze7FWHeKSHAcBeUrUpbiY75fcFdVjY/uUJaXQpem64Xm0O8GxK67CsBqAJahD1hxjc=
+    secure: $GITHUB_KEY
   file_glob: true
   file:
     - bin/*godot*.$PLATFORM.opt.*
