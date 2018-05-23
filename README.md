@@ -10,5 +10,5 @@ pack the OSX and iOS archives, and zip it all with the proper names.
 See the [Releases](https://github.com/GodotBuilder/godot-builds/releases)
 page for the latest builds.
 
-[![Travis status](https://travis-ci.org/GodotBuilder/godot-builds.svg?branch=master)](https://travis-ci.org/GodotBuilder/godot-builds)
+[![Travis status](https://api.travis-ci.org/opmineserver/godot-builds.svg?branch=master)](https://api.travis-ci.org/opmineserver/godot-builds.svg?branch=master)
 [![AppVeyor status](https://ci.appveyor.com/api/projects/status/gld0ahapgjt0vrbg?svg=true)](https://ci.appveyor.com/project/GodotBuilder/godot-builds)
