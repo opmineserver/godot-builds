@@ -1,0 +1,40 @@
+From ab26490534eb5e54c25f601b2ac9f1f9fdaa9297 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?R=C3=A9mi=20Verschelde?= <rverschelde@gmail.com>
+Date: Fri, 16 Feb 2018 18:24:46 +0100
+Subject: [PATCH] X11: Link libgcc statically with use_static_cpp option
+
+We were already linking libstdc++ statically for official binaries,
+protecting us against most portability issues. But apparently since
+we started using GCC 7 for official builds, we also need to link
+libgcc statically for at least 32-bit builds to be portable.
+
+Fixes #16409.
+---
+ platform/x11/detect.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/platform/x11/detect.py b/platform/x11/detect.py
+index c5ef82150..da2b0701b 100644
+--- a/platform/x11/detect.py
++++ b/platform/x11/detect.py
+@@ -49,7 +49,7 @@ def get_opts():
+ 
+     return [
+         BoolVariable('use_llvm', 'Use the LLVM compiler', False),
+-        BoolVariable('use_static_cpp', 'Link stdc++ statically', False),
++        BoolVariable('use_static_cpp', 'Link libgcc and libstdc++ statically for better portability', False),
+         BoolVariable('use_sanitizer', 'Use LLVM compiler address sanitizer', False),
+         BoolVariable('use_leak_sanitizer', 'Use LLVM compiler memory leaks sanitizer (implies use_sanitizer)', False),
+         BoolVariable('pulseaudio', 'Detect & use pulseaudio', True),
+@@ -275,6 +275,6 @@ def configure(env):
+         env.Append(CPPFLAGS=['-m64'])
+         env.Append(LINKFLAGS=['-m64', '-L/usr/lib/i686-linux-gnu'])
+ 
+-
++    # Link those statically for portability
+     if env['use_static_cpp']:
+-        env.Append(LINKFLAGS=['-static-libstdc++'])
++        env.Append(LINKFLAGS=['-static-libgcc', '-static-libstdc++'])
+-- 
+2.13.6
+

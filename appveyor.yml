@@ -1,0 +1,98 @@
+image: Visual Studio 2017
+
+# Skip build on normal pushes
+skip_non_tags: true
+
+artifacts:
+  - path: godot\bin\*.exe
+    name: GodotBinary
+  - path: godot\bin\*gdnative_wrapper_code*.lib
+    name: GodotGDNativeWrapper
+
+environment:
+  BUILD_NAME: official
+  VS: C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Auxiliary\Build\vcvarsall.bat
+  PYTHON: C:\Python27
+  ANGLE_SRC_PATH: C:\projects\godot-builds\angle
+  matrix:
+    - GD_PLATFORM: windows
+      TOOLS: yes
+      TARGET: release_debug
+      ARCH: amd64
+    - GD_PLATFORM: windows
+      TOOLS: yes
+      TARGET: release_debug
+      ARCH: x86
+    - GD_PLATFORM: windows
+      TOOLS: no
+      TARGET: release
+      ARCH: amd64
+    - GD_PLATFORM: windows
+      TOOLS: no
+      TARGET: release_debug
+      ARCH: amd64
+    - GD_PLATFORM: windows
+      TOOLS: no
+      TARGET: release
+      ARCH: x86
+    - GD_PLATFORM: windows
+      TOOLS: no
+      TARGET: release_debug
+      ARCH: x86
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release
+      ARCH: amd64
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release_debug
+      ARCH: amd64
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release
+      ARCH: x86
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release_debug
+      ARCH: x86
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release
+      ARCH: amd64_arm
+    - GD_PLATFORM: uwp
+      TOOLS: no
+      TARGET: release_debug
+      ARCH: amd64_arm
+
+install:
+  - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - pip install --egg scons  # it will fail on AppVeyor without --egg flag
+  - if defined VS call "%VS%" %ARCH%  # if defined - so we can also use mingw
+  - git submodule update --init --recursive # download submodules
+  - ps: >-
+      If ($env:GD_PLATFORM -Match "uwp") {
+        Start-FileDownload https://github.com/GodotBuilder/godot-builds/releases/download/_tools/angle.7z
+        7z.exe x angle.7z
+      }
+
+before_build:
+  - echo %BUILD_NAME%
+  - echo %GD_PLATFORM%
+  - python --version
+  - scons --version
+  - cl.exe
+
+build_script:
+  - cd godot
+  - for /f %%p in ('dir /b ..\patches') do git apply ..\patches\%%p
+  - git rev-parse HEAD
+  - scons platform=%GD_PLATFORM% target=%TARGET% tools=%TOOLS% progress=no warnings=no verbose=no gdnative_wrapper=yes
+
+deploy:
+  description: 'Godot binaries deployed by Travis CI and AppVeyor'
+  provider: GitHub
+  auth_token:
+    secure: DYTTAkQFPIDq2YL6hPMOttlHdJ9ZL6dYdOtGFIEneO8BTYx6keJRvewsdzgP2QGA
+  artifact: GodotBinary, GodotGDNativeWrapper
+  on:
+    appveyor_repo_tag: true

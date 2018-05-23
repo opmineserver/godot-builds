@@ -1,0 +1,214 @@
+language: cpp
+
+sudo: required
+dist: trusty
+
+# Disable builds on normal pushes, we only want to build tags
+branches:
+  except:
+  - master
+  - 2.0
+  - 2.1
+
+
+compiler:
+  - gcc
+  - clang
+
+os:
+  - linux
+  - osx
+
+services:
+  - docker
+
+env:
+  global:
+    - BUILD_NAME=official
+    - OPTIONS="builtin_libpng=yes builtin_openssl=yes builtin_zlib=yes gdnative_wrapper=yes debug_symbols=no"
+    - SCONS="scons -j2 verbose=no warnings=no progress=no"
+  matrix:
+    - PLATFORM=iphone TARGET=release
+    - PLATFORM=iphone TARGET=release_debug
+    - PLATFORM=javascript TARGET=release
+    - PLATFORM=javascript TARGET=release_debug
+    - PLATFORM=osx BITS=fat TOOLS=yes TARGET=release_debug
+    - PLATFORM=osx BITS=fat TOOLS=no TARGET=release
+    - PLATFORM=osx BITS=fat TOOLS=no TARGET=release_debug
+    - PLATFORM=server BITS=64 TOOLS=yes TARGET=release_debug
+    - PLATFORM=x11 BITS=32 TOOLS=yes TARGET=release_debug
+    - PLATFORM=x11 BITS=32 TOOLS=no TARGET=release
+    - PLATFORM=x11 BITS=32 TOOLS=no TARGET=release_debug
+    - PLATFORM=x11 BITS=64 TOOLS=yes TARGET=release_debug
+    - PLATFORM=x11 BITS=64 TOOLS=no TARGET=release
+    - PLATFORM=x11 BITS=64 TOOLS=no TARGET=release_debug
+    - PLATFORM=android TARGET=release ANDROID_ARCH=armv7
+    - PLATFORM=android TARGET=release ANDROID_ARCH=x86
+    - PLATFORM=android TARGET=release_debug ANDROID_ARCH=armv7
+    - PLATFORM=android TARGET=release_debug ANDROID_ARCH=x86
+
+matrix:
+  exclude:
+    - os: linux
+      env: PLATFORM=android TARGET=release ANDROID_ARCH=armv7
+    - os: linux
+      env: PLATFORM=android TARGET=release ANDROID_ARCH=x86
+    - os: linux
+      env: PLATFORM=android TARGET=release_debug ANDROID_ARCH=armv7
+    - os: linux
+      env: PLATFORM=android TARGET=release_debug ANDROID_ARCH=x86
+    - os: linux
+      env: PLATFORM=iphone TARGET=release
+    - os: linux
+      env: PLATFORM=iphone TARGET=release_debug
+    - os: linux
+      env: PLATFORM=osx BITS=fat TOOLS=yes TARGET=release_debug
+    - os: linux
+      env: PLATFORM=osx BITS=fat TOOLS=no TARGET=release
+    - os: linux
+      env: PLATFORM=osx BITS=fat TOOLS=no TARGET=release_debug
+    - os: osx
+      env: PLATFORM=javascript TARGET=release
+    - os: osx
+      env: PLATFORM=javascript TARGET=release_debug
+    - os: osx
+      env: PLATFORM=server BITS=64 TOOLS=yes TARGET=release_debug
+    - os: osx
+      env: PLATFORM=x11 BITS=32 TOOLS=yes TARGET=release_debug
+    - os: osx
+      env: PLATFORM=x11 BITS=32 TOOLS=no TARGET=release
+    - os: osx
+      env: PLATFORM=x11 BITS=32 TOOLS=no TARGET=release_debug
+    - os: osx
+      env: PLATFORM=x11 BITS=64 TOOLS=yes TARGET=release_debug
+    - os: osx
+      env: PLATFORM=x11 BITS=64 TOOLS=no TARGET=release
+    - os: osx
+      env: PLATFORM=x11 BITS=64 TOOLS=no TARGET=release_debug
+    - compiler: gcc
+      env: PLATFORM=iphone TARGET=release
+    - compiler: gcc
+      env: PLATFORM=iphone TARGET=release_debug
+    - compiler: gcc
+      env: PLATFORM=javascript TARGET=release
+    - compiler: gcc
+      env: PLATFORM=javascript TARGET=release_debug
+    - compiler: gcc
+      env: PLATFORM=osx BITS=fat TOOLS=yes TARGET=release_debug
+    - compiler: gcc
+      env: PLATFORM=osx BITS=fat TOOLS=no TARGET=release
+    - compiler: gcc
+      env: PLATFORM=osx BITS=fat TOOLS=no TARGET=release_debug
+    - compiler: clang
+      env: PLATFORM=android TARGET=release ANDROID_ARCH=armv7
+    - compiler: clang
+      env: PLATFORM=android TARGET=release ANDROID_ARCH=x86
+    - compiler: clang
+      env: PLATFORM=android TARGET=release_debug ANDROID_ARCH=armv7
+    - compiler: clang
+      env: PLATFORM=android TARGET=release_debug ANDROID_ARCH=x86
+    - compiler: clang
+      env: PLATFORM=server BITS=64 TOOLS=yes TARGET=release_debug
+    - compiler: clang
+      env: PLATFORM=x11 BITS=32 TOOLS=yes TARGET=release_debug
+    - compiler: clang
+      env: PLATFORM=x11 BITS=32 TOOLS=no TARGET=release
+    - compiler: clang
+      env: PLATFORM=x11 BITS=32 TOOLS=no TARGET=release_debug
+    - compiler: clang
+      env: PLATFORM=x11 BITS=64 TOOLS=yes TARGET=release_debug
+    - compiler: clang
+      env: PLATFORM=x11 BITS=64 TOOLS=no TARGET=release
+    - compiler: clang
+      env: PLATFORM=x11 BITS=64 TOOLS=no TARGET=release_debug
+
+
+before_script:
+  - if [ "$TRAVIS_OS_NAME" = "linux" ]; then sudo apt-get update -qq; sudo apt-get install -y scons pkg-config build-essential; fi;
+  - if [ "$TRAVIS_OS_NAME" = "osx" ]; then brew update; brew install scons; fi;
+  - if [ "$TRAVIS_OS_NAME" = "osx" ] && [ "$PLATFORM" = "android" ]; then
+      brew tap caskroom/cask; brew cask install android-sdk;
+      export ANDROID_HOME=/usr/local/share/android-sdk;
+      wget https://dl.google.com/android/repository/android-ndk-r14b-darwin-x86_64.zip;
+      unzip -d $HOME android-ndk-r14b-darwin-x86_64.zip | grep -v "inflating:" | grep -v "creating:";
+      export ANDROID_NDK_ROOT="$HOME/android-ndk-r14b";
+    fi;
+  - if [ "$PLATFORM" = "x11" ] || [ "$PLATFORM" = "server" ]; then
+      sudo rm -f /etc/apt/sources.list.d/*.list;
+      sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test; sudo apt-get update -qq;
+      sudo apt-get install -y gcc-7 g++-7;
+      if [ "$BITS" = "64" ]; then
+          sudo apt-get install -y libx11-dev libxcursor-dev libxrandr-dev libasound2-dev libpulse-dev libfreetype6-dev libgl1-mesa-dev libglu1-mesa-dev libxi-dev libxinerama-dev;
+      else
+          sudo dpkg --add-architecture i386; sudo apt-get update -qq;
+          sudo apt-get install -y gcc-7-multilib g++-7-multilib pkg-config:i386 libx11-dev:i386 libxcursor-dev:i386 libxrandr-dev:i386 libglib2.0-dev:i386 libasound2-dev:i386 libpulse-dev:i386 libpng-dev:i386 libfreetype6-dev:i386 libgl1-mesa-dev:i386 libglu1-mesa-dev:i386 libxi-dev:i386 libxinerama-dev:i386;
+      fi;
+    fi;
+  - if [ "$PLATFORM" = "javascript" ]; then
+      docker run -dit --name emscripten -v $(pwd)/godot:/src trzeci/emscripten-slim sh;
+      docker exec -it emscripten apt-get update -qq;
+      docker exec -it emscripten apt-get install -y scons;
+    fi;
+
+
+script:
+  - cd godot; for patch in $(find ../patches -type f); do git apply $patch; done;
+  - git rev-parse HEAD;
+  - if [ "$PLATFORM" = "osx" ]; then
+      $SCONS platform=$PLATFORM CXX=$CXX $OPTIONS tools=$TOOLS bits=$BITS target=$TARGET;
+    fi;
+  - if [ "$PLATFORM" = "x11" -o "$PLATFORM" = "server" ]; then
+      export CC="gcc-7"; export CXX="g++-7";
+      while true; do echo "Still building, don't timeout!"; sleep 60; done & export TIMEOUT_HACK_PID=$!;
+      if [ "$BITS" = "32" ] && [ "$TOOLS" = "no" ] && [ "$TARGET" = "release" ]; then
+        $SCONS platform=$PLATFORM CC=$CC CXX=$CXX $OPTIONS tools=$TOOLS bits=$BITS target=$TARGET use_static_cpp=yes;
+      else
+        $SCONS platform=$PLATFORM CC=$CC CXX=$CXX $OPTIONS tools=$TOOLS bits=$BITS target=$TARGET use_lto=yes use_static_cpp=yes;
+      fi;
+    fi;
+  - if [ ! -z "$TIMEOUT_HACK_PID" ]; then
+      kill -9 $TIMEOUT_HACK_PID;
+    fi;
+  - if [ "$PLATFORM" = "android" ]; then
+      $SCONS platform=$PLATFORM CXX=$CXX $OPTIONS target=$TARGET android_arch=$ANDROID_ARCH;
+    fi;
+  - if [ "$PLATFORM" = "iphone" ]; then
+      $SCONS platform=$PLATFORM CXX=$CXX $OPTIONS arch=arm target=$TARGET;
+      $SCONS platform=$PLATFORM CXX=$CXX $OPTIONS arch=arm64 target=$TARGET;
+    fi;
+  - if [ "$PLATFORM" = "javascript" ]; then
+      docker exec -u `id -u` -it emscripten $SCONS platform=$PLATFORM CXX=$CXX $OPTIONS target=$TARGET;
+    fi;
+
+
+before_deploy:
+  - if [ "$PLATFORM" = "iphone" ]; then
+      if [ "$TARGET" = "release" ]; then target_tag="opt"; else target_tag="opt.debug"; fi;
+      lipo -create bin/libgodot.iphone.$target_tag.arm.a bin/libgodot.iphone.$target_tag.arm64.a -output bin/libgodot.iphone.$target_tag.fat;
+      rm -rf bin/libgodot.iphone.$target_tag.arm*;
+    fi;
+  - if [ "$PLATFORM" = "javascript" ]; then
+      rm -f bin/godot.javascript.*.{js,wasm};
+    fi;
+  - if [ "$PLATFORM" = "android" ]; then
+      if [ "$TARGET" = "release" ]; then target_tag="release"; else target_tag="debug"; fi;
+      if [ "$ANDROID_ARCH" = "armv7" ]; then android_arch="armeabi-v7a"; else android_arch="x86"; fi;
+      cp platform/android/java/libs/$target_tag/$android_arch/libgodot_android.so bin/libgodot.android.opt.$target_tag.$android_arch.so;
+    fi;
+  - if [ "$PLATFORM" = "osx" ]; then
+      rm -rf bin/godot.osx.*.dSYM;
+    fi;
+
+
+deploy:
+  provider: releases
+  api_key:
+    secure: tCFCHet6fgtf1+sgQEft4XTIfNH2JrqRx+YaatEfEEVNkHbY3SnRdtvcZeTeHc1LNpf6S0eU45RkBHeyN1Gna80Yiz8uep7rFuUTp5XtZsRfNecw/ebhPlyOEf3AhCVBJ3e3RxT2V1i/+8HyaWBisbXMZ1R+w07M3BxQrTpJflb7iSIXYTF//BxBtC1Atp7egDoU97OJfLSPEhPbjGhMoUuLTe7wmZqd7zK3DNTatL/pXefLN67N15dOra0LNgBHo1o6P4wcVBT2V+o9/TK5RAyUi5TqoudETgq2pBdAE558OuBbHh1dwDrs9b9ZbUC0mLautadiSbCkU0nLmYapaCKGr4+DpnZCxZYgzcYb5UPb6u6Rs3pY11JFtPYIXR2C1UJh4rpBIQa+F/eBKnw+QztnjfYWxJYq2T73CuFLgku89x99cVq7EiP0g/lZp64HxyENOcyL0FlWwjmq2vnr8BKNhDEVAXIUB1JsH8VshvndlgLhaRyRe+rkXnikLX8Nm6Z9V4pCjnRuCgiwZtYjxMTBhk30ZtXUg4uzCVmbvbUql8PPNrWDeq9yoUVe55kqU6DsxM1CEIou7Qcua2eeXcUkOGCgpXH4W0NXWBFo7Ze7FWHeKSHAcBeUrUpbiY75fcFdVjY/uUJaXQpem64Xm0O8GxK67CsBqAJahD1hxjc=
+  file_glob: true
+  file:
+    - bin/*godot*.$PLATFORM.opt.*
+    - bin/*gdnative_wrapper_code*.$PLATFORM.opt.*
+  skip_cleanup: true
+  on:
+    repo: GodotBuilder/godot-builds
+    tags: true

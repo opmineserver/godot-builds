@@ -1,0 +1,45 @@
+From dd4f3db3e298ef9b130d3170327d914d5de8f278 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?R=C3=A9mi=20Verschelde?= <rverschelde@gmail.com>
+Date: Thu, 25 Jan 2018 23:32:20 +0100
+Subject: [PATCH] Bump version to 3.0-stable \o/
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Congratulations to everyone in the Godot community for the tremendous work
+done on this release since 18 months, with hundreds of contributors pushing
+almost 7500 commits with more than 3000 PRs and closing over 2000 issues
+(and fixing even more than that, as many work-in-progress bugs were fixed
+before an issue could be filled).
+
+Godot 3.0 is definitely our biggest and boldest release so far, and we want
+to thank the whole community for their unswerving support during this long
+wait.
+
+From there on, there is a lot of work to do to strengthen the foundations
+that we built with 3.0, fixing the bugs that the many refactorings probably
+introduced, optimizing new features and enhancing the usability again...
+
+The 3.x era should be a fruitful one for Godot, and we hope that you will
+continue using it to create awesome 2D and 3D games and increase the
+notoriety of your favourite engine in the game development industry.
+
+And now, let's all start waiting for 3.1...
+---
+ version.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/version.py b/version.py
+index 4e502bc31..d5d200d0b 100644
+--- a/version.py
++++ b/version.py
+@@ -2,5 +2,5 @@ short_name = "godot"
+ name = "Godot Engine"
+ major = 3
+ minor = 0
+-status = "rc3"
++status = "stable"
+ module_config = ""
+-- 
+2.13.6
+

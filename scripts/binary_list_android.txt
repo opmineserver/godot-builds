@@ -1,0 +1,4 @@
+libgodot.android.opt.release.armeabi-v7a.so
+libgodot.android.opt.debug.armeabi-v7a.so
+libgodot.android.opt.release.x86.so
+libgodot.android.opt.debug.x86.so
